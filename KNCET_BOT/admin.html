@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KNCET Admin Panel</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #1d2671;
+  color: white;
+}
+
+button {
+  padding: 5px 10px;
+  background: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>KNCET Website Visitors – Admin Panel</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Mobile</th>
+    <th>Purpose</th>
+    <th>Department</th>
+    <th>Action</th>
+  </tr>
+  <tbody id="data"></tbody>
+</table>
+
+<script>
+let users = JSON.parse(localStorage.getItem("visitors")) || [];
+let table = document.getElementById("data");
+
+function displayUsers() {
+  table.innerHTML = "";
+  users.forEach((u, index) => {
+    table.innerHTML += `
+      <tr>
+        <td>${u.name || "-"}</td>
+        <td>${u.email || "-"}</td>
+        <td>${u.mobile || "-"}</td>
+        <td>${u.purpose || "-"}</td>
+        <td>${u.department || "-"}</td>
+        <td><button onclick="deleteUser(${index})">Delete</button></td>
+      </tr>
+    `;
+  });
+}
+
+function deleteUser(index) {
+  if (confirm("Delete this record?")) {
+    users.splice(index, 1);
+    localStorage.setItem("visitors", JSON.stringify(users));
+    displayUsers();
+  }
+}
+
+displayUsers();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.background {
+  height: 100vh;
+  background: linear-gradient(270deg, #1d2671, #c33764);
+  animation: bg 6s infinite alternate;
+}
+
+@keyframes bg {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(90deg); }
+}
+
+.chatbot {
+  width: 350px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #1d2671;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.chat-body {
+  height: 300px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.chat-body p {
+  margin: 6px 0;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.admin-icon {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  color: #1d2671;
+}
