@@ -1,0 +1,116 @@
+{
+  "accuracy": 1.0,
+  "rf_accuracy": 1.0,
+  "gb_accuracy": 0.999375,
+  "svm_accuracy": 0.999375,
+  "cv_mean": 1.0,
+  "cv_std": 0.0,
+  "n_classes": 8,
+  "n_features": 14,
+  "n_training_samples": 6400,
+  "classes": [
+    "Colorectal Polyp",
+    "Crohn's Disease",
+    "Early Colorectal Cancer",
+    "Ischemic Colitis",
+    "Mild Ulcerative Colitis",
+    "Moderate Ulcerative Colitis",
+    "Normal Mucosa",
+    "Severe Ulcerative Colitis"
+  ],
+  "feature_names": [
+    "uceis_v",
+    "uceis_b",
+    "uceis_u",
+    "uceis_total",
+    "mayo_score",
+    "redness_index",
+    "texture_variance",
+    "bleeding_area_pct",
+    "ulcer_depth_score",
+    "vascular_obliteration",
+    "mucosa_granularity",
+    "hemorrhage_score",
+    "skip_lesion_pattern",
+    "rectal_involvement"
+  ],
+  "feature_importances": {
+    "texture_variance": 0.1885387179732306,
+    "mucosa_granularity": 0.12091690118902307,
+    "redness_index": 0.1191883458827996,
+    "uceis_total": 0.10318202762382227,
+    "hemorrhage_score": 0.09060614705353602,
+    "rectal_involvement": 0.06717564201871745,
+    "skip_lesion_pattern": 0.0641405040435841,
+    "vascular_obliteration": 0.04807741866184305,
+    "ulcer_depth_score": 0.044825617402771155,
+    "uceis_u": 0.04012475701247919,
+    "bleeding_area_pct": 0.03962783015221019,
+    "uceis_v": 0.036466917425561844,
+    "uceis_b": 0.03470918954943472,
+    "mayo_score": 0.002419984010986935
+  },
+  "classification_report": {
+    "Colorectal Polyp": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Crohn's Disease": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Early Colorectal Cancer": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Ischemic Colitis": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Mild Ulcerative Colitis": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Moderate Ulcerative Colitis": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Normal Mucosa": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "Severe Ulcerative Colitis": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1600.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1600.0
+    }
+  }
+}

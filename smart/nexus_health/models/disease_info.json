@@ -1,0 +1,66 @@
+{
+  "Normal Mucosa": {
+    "icd10": "K63.89",
+    "severity": "none",
+    "urgency": "routine",
+    "description": "No pathological findings. Mucosa appears healthy with normal vascular pattern.",
+    "recommendation": "Continue routine surveillance. No immediate intervention required.",
+    "color": "#00ff9d"
+  },
+  "Mild Ulcerative Colitis": {
+    "icd10": "K51.00",
+    "severity": "mild",
+    "urgency": "outpatient",
+    "description": "Mild mucosal inflammation with slight erythema and preserved vascular pattern.",
+    "recommendation": "5-ASA therapy initiation. Follow-up colonoscopy in 3 months.",
+    "color": "#ffb830"
+  },
+  "Moderate Ulcerative Colitis": {
+    "icd10": "K51.01",
+    "severity": "moderate",
+    "urgency": "urgent",
+    "description": "Moderate inflammation with erosions, contact bleeding and distorted vascular pattern.",
+    "recommendation": "Oral/IV corticosteroids. Gastroenterology consult within 48 hours.",
+    "color": "#ff7c45"
+  },
+  "Severe Ulcerative Colitis": {
+    "icd10": "K51.01",
+    "severity": "severe",
+    "urgency": "emergent",
+    "description": "Severe mucosal ulceration, spontaneous bleeding and complete vascular obliteration.",
+    "recommendation": "Immediate hospitalization. IV steroids + biologic therapy consideration.",
+    "color": "#ff4757"
+  },
+  "Crohn's Disease": {
+    "icd10": "K50.10",
+    "severity": "moderate",
+    "urgency": "urgent",
+    "description": "Skip lesions with cobblestone mucosa, deep linear ulcers and rectal sparing.",
+    "recommendation": "Immunomodulator therapy. MR enterography for full bowel assessment.",
+    "color": "#a55eea"
+  },
+  "Colorectal Polyp": {
+    "icd10": "K63.5",
+    "severity": "low",
+    "urgency": "semi-urgent",
+    "description": "Mucosal protrusion detected. Pattern analysis suggests adenomatous morphology.",
+    "recommendation": "Endoscopic polypectomy during current or next session. Histology required.",
+    "color": "#00d4ff"
+  },
+  "Early Colorectal Cancer": {
+    "icd10": "C18.9",
+    "severity": "high",
+    "urgency": "emergent",
+    "description": "Irregular mucosal mass with disrupted pit pattern. High suspicion of malignancy.",
+    "recommendation": "Urgent oncology referral. CT staging required within 72 hours.",
+    "color": "#ff2d55"
+  },
+  "Ischemic Colitis": {
+    "icd10": "K55.9",
+    "severity": "moderate",
+    "urgency": "urgent",
+    "description": "Segmental mucosal pallor with submucosal hemorrhage. Classic watershed distribution.",
+    "recommendation": "IV fluids, bowel rest, cardiology assessment for underlying vascular cause.",
+    "color": "#fd9644"
+  }
+}

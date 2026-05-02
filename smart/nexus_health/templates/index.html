@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS Health — Endoscopy Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-void: #030712; --bg-deep: #060d1f; --bg-card: #0a1628; --bg-card2: #0d1e35;
+  --accent-cyan: #00d4ff; --accent-cyan-dim: rgba(0,212,255,0.12); --accent-cyan-glow: rgba(0,212,255,0.06);
+  --accent-green: #00ff9d; --accent-green-dim: rgba(0,255,157,0.1);
+  --accent-amber: #ffb830; --accent-amber-dim: rgba(255,184,48,0.1);
+  --accent-red: #ff4757; --accent-red-dim: rgba(255,71,87,0.1);
+  --accent-orange: #ff7c45; --accent-purple: #a55eea; --accent-purple-dim: rgba(165,94,234,0.1);
+  --text-primary: #e8f4fd; --text-secondary: #7a9bbf; --text-muted: #3d5a7a;
+  --border-subtle: rgba(0,212,255,0.07); --border-mid: rgba(0,212,255,0.18); --border-strong: rgba(0,212,255,0.35);
+  --font-display: 'Syne',sans-serif; --font-body: 'DM Sans',sans-serif; --font-mono: 'Space Mono',monospace;
+}
+body { background: var(--bg-void); color: var(--text-primary); font-family: var(--font-body); min-height:100vh; overflow-x:hidden; }
+
+/* ── BACKGROUND ── */
+.bg-grid { position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);
+  background-size: 48px 48px; }
+.bg-orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; }
+.orb1 { width:700px; height:700px; background:radial-gradient(circle,rgba(0,212,255,0.07) 0%,transparent 70%); top:-250px; right:-150px; animation:drift1 14s ease-in-out infinite; }
+.orb2 { width:500px; height:500px; background:radial-gradient(circle,rgba(0,255,157,0.05) 0%,transparent 70%); bottom:0; left:-100px; animation:drift2 18s ease-in-out infinite; }
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,40px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-30px)} }
+
+/* ── TOPBAR ── */
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 28px;
+  border-bottom:1px solid var(--border-subtle); background:rgba(3,7,18,0.92);
+  backdrop-filter:blur(20px); position:sticky; top:0; z-index:100; }
+.logo-group { display:flex; align-items:center; gap:12px; }
+.logo-icon { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,#00d4ff,#0066cc);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-weight:800; font-size:14px; color:#fff; }
+.logo-name { font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:-0.3px; }
+.logo-name span { color:var(--accent-cyan); }
+.logo-sub { font-size:10px; color:var(--text-secondary); letter-spacing:2px; text-transform:uppercase; font-family:var(--font-mono); }
+.nav-tabs { display:flex; gap:4px; }
+.nav-tab { padding:6px 14px; border-radius:7px; font-size:12px; font-weight:500; cursor:pointer;
+  color:var(--text-secondary); border:1px solid transparent; transition:all 0.2s; }
+.nav-tab:hover { color:var(--text-primary); background:var(--accent-cyan-glow); }
+.nav-tab.active { color:var(--accent-cyan); background:var(--accent-cyan-dim); border-color:var(--border-mid); }
+.status-pill { display:flex; align-items:center; gap:6px; background:var(--accent-green-dim);
+  border:1px solid rgba(0,255,157,0.2); border-radius:20px; padding:4px 12px;
+  font-size:10px; font-family:var(--font-mono); color:var(--accent-green); letter-spacing:1px; }
+.sdot { width:5px; height:5px; border-radius:50%; background:var(--accent-green); animation:pdot 2s infinite; }
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+.avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#1a3a5c,#00638a);
+  border:1.5px solid var(--border-mid); display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; color:var(--accent-cyan); }
+
+/* ── BREADCRUMB ── */
+.breadcrumb-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 28px;
+  border-bottom:1px solid var(--border-subtle); background:rgba(6,13,31,0.7); }
+.bc { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text-muted); font-family:var(--font-mono); }
+.bc span { color:var(--accent-cyan); }
+.pt-pill { display:flex; align-items:center; gap:10px; background:var(--bg-card);
+  border:1px solid var(--border-subtle); border-radius:8px; padding:5px 14px; font-size:12px; }
+.pt-id { font-family:var(--font-mono); color:var(--accent-cyan); font-size:10px; }
+
+/* ── MAIN GRID ── */
+.main { display:grid; grid-template-columns:1fr 360px; gap:20px; padding:20px 28px; position:relative; z-index:1; }
+
+/* ── SECTION LABEL ── */
+.slabel { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted);
+  font-family:var(--font-mono); margin-bottom:6px; }
+
+/* ── VIDEO PANEL ── */
+.video-panel { display:flex; flex-direction:column; gap:16px; }
+.vcard { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:16px; overflow:hidden; position:relative; }
+.vcard::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent-cyan),transparent); opacity:0.4; z-index:2; }
+.vcard-head { display:flex; align-items:center; justify-content:space-between; padding:12px 16px;
+  border-bottom:1px solid var(--border-subtle); }
+.vtitle { font-family:var(--font-display); font-weight:600; font-size:13px; }
+.vbadges { display:flex; gap:8px; }
+.vb { padding:3px 8px; border-radius:5px; font-size:9px; font-family:var(--font-mono); letter-spacing:1px; }
+.vb-c { background:var(--accent-cyan-dim); border:1px solid var(--border-mid); color:var(--accent-cyan); }
+.vb-g { background:var(--accent-green-dim); border:1px solid rgba(0,255,157,0.2); color:var(--accent-green); }
+.vb-a { background:var(--accent-amber-dim); border:1px solid rgba(255,184,48,0.2); color:var(--accent-amber); }
+
+/* Video viewport */
+.vviewport { position:relative; background:#000; overflow:hidden; aspect-ratio:16/9; max-height:400px; cursor:crosshair; }
+#endoCanvas { width:100%; height:100%; display:block; }
+.voverlay { position:absolute; top:0; left:0; bottom:0; width:155px;
+  background:linear-gradient(90deg,rgba(0,0,0,0.78) 0%,transparent 100%);
+  padding:12px 14px; display:flex; flex-direction:column; gap:3px; }
+.ovr { font-size:10px; font-family:var(--font-mono); color:rgba(255,255,255,0.45); }
+.ovr span { color:rgba(255,255,255,0.82); }
+.ai-badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7);
+  border:1px solid var(--border-mid); border-radius:8px; padding:5px 10px;
+  font-size:10px; font-family:var(--font-mono); color:var(--accent-cyan);
+  letter-spacing:1px; display:flex; align-items:center; gap:6px; }
+.ai-d { width:5px; height:5px; border-radius:50%; background:var(--accent-cyan); animation:pdot 1.2s infinite; }
+.sev-bar { position:absolute; bottom:0; left:0; right:0; height:5px;
+  background:linear-gradient(90deg,#1a4a6a 0%,#1a4a6a 30%,#2d7a4a 30%,#2d7a4a 42%,
+    #b8860b 42%,#b8860b 58%,#cc3300 58%,#cc3300 72%,#8b0000 72%,#8b0000 82%,
+    #cc3300 82%,#cc3300 90%,#b8860b 90%); opacity:0.75; }
+
+/* Playback controls */
+.vcontrols { display:flex; align-items:center; gap:10px; padding:9px 16px;
+  border-top:1px solid var(--border-subtle); background:rgba(6,13,31,0.6); flex-wrap:wrap; }
+.cbtn { background:none; border:1px solid var(--border-subtle); border-radius:6px; padding:4px 9px;
+  cursor:pointer; font-size:11px; color:var(--text-secondary); font-family:var(--font-mono); transition:all 0.2s; }
+.cbtn:hover { border-color:var(--border-mid); color:var(--accent-cyan); }
+.cbtn.play { border-color:var(--border-mid); color:var(--accent-cyan); background:var(--accent-cyan-dim); }
+.tdisp { font-family:var(--font-mono); font-size:12px; color:var(--text-primary); }
+.speed-grp { display:flex; align-items:center; gap:6px; margin-left:auto; font-size:10px;
+  color:var(--text-muted); font-family:var(--font-mono); }
+.sbtn { padding:3px 7px; border-radius:4px; border:1px solid var(--border-subtle); cursor:pointer;
+  font-size:10px; color:var(--text-secondary); background:none; font-family:var(--font-mono); transition:all 0.15s; }
+.sbtn:hover { border-color:var(--border-mid); color:var(--text-primary); }
+.sbtn.active { background:var(--accent-cyan-dim); border-color:var(--border-mid); color:var(--accent-cyan); }
+
+/* ── TIMELINE ── */
+.tlcard { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; }
+.tl-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.tl-title { font-family:var(--font-display); font-weight:600; font-size:13px; }
+.tl-leg { display:flex; gap:12px; }
+.tll { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-muted); font-family:var(--font-mono); }
+.tld { width:8px; height:8px; border-radius:2px; }
+.tm-row { display:flex; justify-content:space-between; font-size:10px; font-family:var(--font-mono); color:var(--text-muted); margin-bottom:4px; }
+.sgraph { position:relative; height:55px; border:1px solid var(--border-subtle); border-radius:8px; overflow:hidden; background:#060d1f; margin-bottom:6px; }
+#scoreGraph { width:100%; height:100%; display:block; }
+.sbar { height:14px; border-radius:4px; overflow:hidden; display:flex; cursor:pointer; }
+.sbseg { height:100%; flex-shrink:0; transition:opacity 0.2s; }
+.sbseg:hover { opacity:0.7; }
+.sbseg.current { outline:2px solid var(--accent-cyan); outline-offset:-2px; }
+.ph-wrap { position:relative; height:4px; margin-top:3px; background:rgba(255,255,255,0.05); border-radius:2px; cursor:pointer; }
+.ph-track { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent-cyan),rgba(0,212,255,0.3)); }
+.ph-thumb { position:absolute; top:50%; transform:translate(50%,-50%); width:11px; height:11px;
+  border-radius:50%; background:var(--accent-cyan); border:2px solid #fff; cursor:grab; right:43%; }
+
+/* ── RIGHT PANEL ── */
+.rp { display:flex; flex-direction:column; gap:14px; }
+
+/* Section nav */
+.snav { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:14px; }
+.snav-row { display:flex; align-items:center; gap:8px; justify-content:space-between; margin-top:6px; }
+.navbtn { display:flex; align-items:center; gap:5px; padding:7px 13px; border-radius:8px;
+  border:1px solid var(--border-mid); background:var(--bg-card2); cursor:pointer; font-size:12px;
+  font-weight:500; color:var(--text-secondary); font-family:var(--font-body); transition:all 0.2s; }
+.navbtn:hover { border-color:var(--accent-cyan); color:var(--accent-cyan); background:var(--accent-cyan-dim); }
+.sctr { font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--text-primary); }
+.sctr span { color:var(--text-muted); font-size:11px; }
+.savebtn { padding:7px 15px; border-radius:8px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,102,204,0.15));
+  border:1px solid var(--border-mid); color:var(--accent-cyan);
+  font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font-body); transition:all 0.2s; }
+.savebtn:hover { background:var(--accent-cyan-dim); border-color:var(--accent-cyan); }
+
+/* ── SCORE CARD ── */
+.score-card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; position:relative; overflow:hidden; }
+.score-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent-cyan),transparent); opacity:0.35; }
+.sc-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.sctitle { font-family:var(--font-display); font-weight:600; font-size:13px; }
+.tot-badge { display:flex; flex-direction:column; align-items:center;
+  background:var(--bg-card2); border:1px solid var(--border-mid); border-radius:10px; padding:7px 13px; min-width:58px; }
+.tot-num { font-family:var(--font-mono); font-size:24px; font-weight:700; line-height:1; color:var(--accent-amber); }
+.tot-lbl { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:1px; margin-top:2px; }
+
+.slrow { margin-bottom:12px; }
+.slrow:last-of-type { margin-bottom:0; }
+.sl-lr { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.sl-name { font-size:11px; font-family:var(--font-mono); letter-spacing:1px; color:var(--text-secondary); }
+.sl-val { font-family:var(--font-mono); font-size:13px; font-weight:700; }
+.rng-wrap { position:relative; }
+.rng-bg { position:absolute; top:50%; left:0; right:0; height:4px; border-radius:2px;
+  background:var(--bg-card2); border:1px solid var(--border-subtle); transform:translateY(-50%); pointer-events:none; }
+.rng-fill { position:absolute; top:50%; left:0; height:4px; border-radius:2px; transform:translateY(-50%); pointer-events:none; transition:width 0.15s; }
+input[type=range].nr { width:100%; -webkit-appearance:none; height:4px; border-radius:2px;
+  outline:none; cursor:pointer; background:transparent; position:relative; z-index:2; }
+input[type=range].nr::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px;
+  border-radius:50%; background:var(--accent-cyan); border:2px solid #0a1628; cursor:grab;
+  box-shadow:0 0 8px rgba(0,212,255,0.5); transition:transform 0.1s; }
+input[type=range].nr::-webkit-slider-thumb:hover { transform:scale(1.2); }
+input[type=range].nr.gr::-webkit-slider-thumb { background:var(--accent-red); box-shadow:0 0 8px rgba(255,71,87,0.5); }
+input[type=range].nr.or::-webkit-slider-thumb { background:var(--accent-orange); box-shadow:0 0 8px rgba(255,124,69,0.4); }
+.sm-row { display:flex; justify-content:space-between; margin-top:3px; }
+.sm { font-size:9px; font-family:var(--font-mono); color:var(--text-muted); }
+
+.unsc-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-top:1px solid var(--border-subtle); margin-top:8px; }
+.unsc-cb { width:14px; height:14px; border-radius:4px; border:1px solid var(--border-mid); cursor:pointer; accent-color:var(--accent-cyan); }
+.unsc-lbl { font-size:12px; color:var(--text-secondary); cursor:pointer; }
+
+/* Mayo */
+.mayo-card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:14px; position:relative; overflow:hidden; }
+.mayo-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent-orange),transparent); opacity:0.35; }
+
+/* ── ANALYSE BUTTON ── */
+.analyse-btn {
+  width:100%; padding:14px; border-radius:12px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.22),rgba(0,102,204,0.18));
+  border:1px solid var(--accent-cyan); color:var(--accent-cyan);
+  font-family:var(--font-display); font-weight:700; font-size:15px; letter-spacing:0.5px;
+  cursor:pointer; transition:all 0.25s; display:flex; align-items:center; justify-content:center; gap:10px;
+  position:relative; overflow:hidden;
+}
+.analyse-btn::before { content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(0,212,255,0.12) 50%,transparent 100%);
+  transform:translateX(-100%); transition:transform 0.5s; }
+.analyse-btn:hover::before { transform:translateX(100%); }
+.analyse-btn:hover { background:linear-gradient(135deg,rgba(0,212,255,0.3),rgba(0,102,204,0.25)); box-shadow:0 0 30px rgba(0,212,255,0.2); }
+.analyse-btn:active { transform:scale(0.98); }
+.analyse-btn.loading { opacity:0.7; cursor:wait; }
+.btn-icon { font-size:18px; }
+
+/* ── ML RESULTS PANEL ── */
+.result-panel { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; overflow:hidden; display:none; }
+.result-panel.visible { display:block; animation:fadeUp 0.4s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.rp-head { padding:14px 16px; border-bottom:1px solid var(--border-subtle);
+  display:flex; align-items:center; justify-content:space-between; }
+.rp-title { font-family:var(--font-display); font-weight:700; font-size:14px; }
+.ai-chip { display:flex; align-items:center; gap:5px; padding:3px 9px;
+  background:var(--accent-cyan-dim); border:1px solid var(--border-mid); border-radius:6px;
+  font-size:10px; font-family:var(--font-mono); color:var(--accent-cyan); letter-spacing:1px; }
+
+/* Disease result */
+.disease-hero { padding:16px; border-bottom:1px solid var(--border-subtle); }
+.dh-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.dh-name { font-family:var(--font-display); font-weight:700; font-size:18px; line-height:1.2; }
+.dh-conf { font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.dh-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.dm-badge { padding:3px 9px; border-radius:5px; font-size:10px; font-family:var(--font-mono); letter-spacing:1px; }
+.dh-desc { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+.dh-rec { margin-top:8px; padding:9px 12px; background:rgba(0,212,255,0.06);
+  border:1px solid var(--border-subtle); border-radius:8px; font-size:11px; color:var(--text-secondary); line-height:1.4; }
+.dh-rec strong { color:var(--accent-cyan); }
+
+/* Confidence bar */
+.conf-bar-wrap { height:5px; background:var(--border-subtle); border-radius:3px; margin-top:6px; overflow:hidden; }
+.conf-bar-fill { height:100%; border-radius:3px; transition:width 0.8s cubic-bezier(0.22,1,0.36,1); }
+
+/* Top-3 */
+.top3-section { padding:12px 16px; border-bottom:1px solid var(--border-subtle); }
+.t3-row { display:flex; align-items:center; gap:10px; padding:5px 0; }
+.t3-rank { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); width:18px; }
+.t3-name { font-size:12px; flex:1; }
+.t3-conf { font-family:var(--font-mono); font-size:12px; font-weight:700; }
+.t3-bar { flex:1; height:3px; background:var(--border-subtle); border-radius:2px; overflow:hidden; }
+.t3-fill { height:100%; border-radius:2px; }
+
+/* Pipeline steps */
+.pipeline-section { padding:12px 16px; }
+.ps-row { display:flex; align-items:center; gap:10px; padding:5px 0; border-bottom:1px solid var(--border-subtle); }
+.ps-row:last-child { border-bottom:none; }
+.ps-check { width:16px; height:16px; border-radius:4px; background:var(--accent-green-dim);
+  border:1px solid rgba(0,255,157,0.25); display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:var(--accent-green); flex-shrink:0; }
+.ps-step { font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); width:130px; flex-shrink:0; }
+.ps-val { font-size:11px; color:var(--text-primary); flex:1; }
+
+/* ── Summary card ── */
+.summary-card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:14px; }
+.sum-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-subtle); }
+.sum-row:last-child { border-bottom:none; }
+.sum-k { font-size:12px; color:var(--text-secondary); }
+.sum-v { font-family:var(--font-mono); font-size:14px; font-weight:700; }
+.alert-box { background:var(--accent-amber-dim); border:1px solid rgba(255,184,48,0.25);
+  border-radius:8px; padding:9px 12px; margin-top:8px; font-size:11px; color:var(--accent-amber);
+  font-family:var(--font-mono); display:flex; align-items:center; gap:8px; letter-spacing:0.5px; }
+
+/* ── BOTTOM BAR ── */
+.bbar { display:flex; align-items:center; justify-content:space-between; padding:9px 28px;
+  border-top:1px solid var(--border-subtle); background:rgba(3,7,18,0.9); }
+.bbar-l { display:flex; gap:22px; }
+.bi { font-size:10px; font-family:var(--font-mono); color:var(--text-muted); }
+.bi span { color:var(--accent-cyan); }
+.bbar-r { font-size:10px; font-family:var(--font-mono); color:var(--text-muted); }
+
+/* ── LOADING SPINNER ── */
+.spinner { width:16px; height:16px; border:2px solid rgba(0,212,255,0.2); border-top-color:var(--accent-cyan);
+  border-radius:50%; animation:spin 0.7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Model info pill */
+.model-info-bar { display:flex; align-items:center; gap:16px; padding:8px 28px;
+  border-bottom:1px solid var(--border-subtle); background:rgba(6,13,31,0.5); flex-wrap:wrap; }
+.mstat { font-size:10px; font-family:var(--font-mono); color:var(--text-muted); }
+.mstat span { color:var(--accent-green); }
+.mstat.warn span { color:var(--accent-amber); }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="logo-group">
+    <div class="logo-icon">N+</div>
+    <div>
+      <div class="logo-name">NEX<span>US</span> HEALTH</div>
+      <div class="logo-sub">Endoscopy Intelligence Platform</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab">Patient Monitor</div>
+    <div class="nav-tab active">Endoscopy Scoring</div>
+    <div class="nav-tab">AI Pathology</div>
+    <div class="nav-tab">Lab Results</div>
+    <div class="nav-tab">Reports</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="status-pill"><div class="sdot"></div>LIVE REVIEW</div>
+    <div class="avatar">DR</div>
+    <div style="font-size:12px;">
+      <div style="font-weight:500;">Dr. Rajan, K.</div>
+      <div style="font-size:10px;color:var(--text-secondary);">Gastroenterologist</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MODEL INFO BAR -->
+<div class="model-info-bar" id="modelInfoBar">
+  <div class="mstat">ML ENGINE <span id="mlStatus">LOADING…</span></div>
+  <div class="mstat">ENSEMBLE ACCURACY <span id="mlAcc">—</span></div>
+  <div class="mstat">CV SCORE <span id="mlCV">—</span></div>
+  <div class="mstat">CLASSES <span id="mlClasses">8</span></div>
+  <div class="mstat">FEATURES <span id="mlFeats">14</span></div>
+  <div class="mstat">TRAINING SAMPLES <span id="mlSamples">—</span></div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="bc">Endoscopy <span>›</span> Colonoscopy Review <span>›</span> UCEIS / Mayo + ML Diagnosis</div>
+  <div class="pt-pill">
+    <div class="pt-id">PT-2024-00847</div>
+    <div style="font-size:13px;font-weight:500;">Arjun Krishnamurthy</div>
+    <div style="font-size:11px;color:var(--text-secondary);">M · 58y · ICU · Admitted 14h</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── LEFT: VIDEO + TIMELINE ── -->
+  <div class="video-panel">
+    <div class="slabel">Endoscopy Video — Section <span id="curSec">6</span> of 26</div>
+
+    <div class="vcard">
+      <div class="vcard-head">
+        <div class="vtitle">Colonoscopy Footage · EKA3-Cmc1</div>
+        <div class="vbadges">
+          <div class="vb vb-c">4K · 60fps</div>
+          <div class="vb vb-g">◈ AI ACTIVE</div>
+          <div class="vb vb-a" id="aiDetect">DETECTING…</div>
+        </div>
+      </div>
+      <div class="vviewport">
+        <canvas id="endoCanvas"></canvas>
+        <div class="voverlay">
+          <div class="ovr">ID: <span>PT-00847</span></div>
+          <div class="ovr">Name: <span>A. Krishnamurthy</span></div>
+          <div class="ovr" style="margin-top:3px;">Sex: <span>M</span> Age: <span>58</span></div>
+          <div class="ovr">DOB: <span>15/10/1966</span></div>
+          <div class="ovr" style="margin-top:3px;font-size:9px;" id="vTime">12:32:41</div>
+          <div class="ovr">Frame: <span id="frameNum">929/964</span></div>
+          <div class="ovr">Seq: <span>EkA3 Cmc1</span></div>
+          <div class="ovr" style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.3);">Comment:</div>
+        </div>
+        <div class="ai-badge"><div class="ai-d"></div><span id="aiLabel">NEXUS AI · DETECTING</span></div>
+        <div class="sev-bar"></div>
+      </div>
+      <div class="vcontrols">
+        <button class="cbtn">⏮</button>
+        <button class="cbtn">⏪</button>
+        <button class="cbtn play" id="playBtn">⏸</button>
+        <button class="cbtn">⏩</button>
+        <button class="cbtn">⏭</button>
+        <div class="tdisp" id="tDisp">9:32 <span style="color:var(--text-muted)">/</span> 10:24</div>
+        <div class="speed-grp">
+          VIDEO SPEED:
+          <button class="sbtn">×2</button>
+          <button class="sbtn active">×1</button>
+          <button class="sbtn">×0.5</button>
+          <button class="sbtn">×0.25</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="tlcard">
+      <div class="tl-head">
+        <div>
+          <div class="slabel">Section Timeline</div>
+          <div class="tl-title">UCEIS Score Distribution · Full Procedure</div>
+        </div>
+        <div class="tl-leg">
+          <div class="tll"><div class="tld" style="background:#2d7a4a"></div>Mild</div>
+          <div class="tll"><div class="tld" style="background:#b8860b"></div>Moderate</div>
+          <div class="tll"><div class="tld" style="background:#cc3300"></div>Severe</div>
+          <div class="tll"><div class="tld" style="background:#8b0000"></div>Critical</div>
+        </div>
+      </div>
+      <div class="tm-row">
+        <span>00:00</span><span>02:00</span><span>04:00</span><span>06:00</span><span>08:00</span><span>10:00</span>
+      </div>
+      <div class="sgraph"><canvas id="scoreGraph"></canvas></div>
+      <div class="sbar" id="sectionBar"></div>
+      <div class="ph-wrap">
+        <div class="ph-track" id="phTrack" style="width:57%"></div>
+        <div class="ph-thumb" id="phThumb" style="right:43%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="rp">
+
+    <!-- Section nav -->
+    <div class="snav">
+      <div class="slabel">Section Navigation</div>
+      <div class="snav-row">
+        <button class="navbtn" onclick="changeSection(-1)">← Previous</button>
+        <div class="sctr" id="secCounter">6 <span>/ 26</span></div>
+        <button class="savebtn" onclick="saveAndNext()">Save & Next →</button>
+      </div>
+    </div>
+
+    <!-- UCEIS -->
+    <div class="score-card">
+      <div class="sc-head">
+        <div>
+          <div class="slabel">Ulcerative Colitis Endoscopic</div>
+          <div class="sctitle">UCEIS Score</div>
+        </div>
+        <div class="tot-badge">
+          <div class="tot-num" id="uTotal">5.9</div>
+          <div class="tot-lbl">TOTAL</div>
+        </div>
+      </div>
+
+      <!-- V -->
+      <div class="slrow">
+        <div class="sl-lr">
+          <div class="sl-name">V · VASCULAR PATTERN</div>
+          <div class="sl-val" style="color:var(--accent-cyan)" id="vVal">0.0</div>
+        </div>
+        <div class="rng-wrap">
+          <div class="rng-bg"></div>
+          <div class="rng-fill" id="vFill" style="background:linear-gradient(90deg,var(--accent-cyan),#0099cc)"></div>
+          <input type="range" class="nr" min="0" max="2" step="0.1" value="0" id="vSlider" oninput="updateScore()">
+        </div>
+        <div class="sm-row"><span class="sm">0</span><span class="sm">1</span><span class="sm">2</span></div>
+      </div>
+
+      <!-- B -->
+      <div class="slrow">
+        <div class="sl-lr">
+          <div class="sl-name">B · BLEEDING</div>
+          <div class="sl-val" style="color:var(--accent-red)" id="bVal">1.5</div>
+        </div>
+        <div class="rng-wrap">
+          <div class="rng-bg"></div>
+          <div class="rng-fill" id="bFill" style="background:linear-gradient(90deg,var(--accent-red),#cc2233)"></div>
+          <input type="range" class="nr gr" min="0" max="3" step="0.1" value="1.5" id="bSlider" oninput="updateScore()">
+        </div>
+        <div class="sm-row"><span class="sm">0</span><span class="sm">1</span><span class="sm">2</span><span class="sm">3</span></div>
+      </div>
+
+      <!-- U -->
+      <div class="slrow">
+        <div class="sl-lr">
+          <div class="sl-name">U · ULCERATION</div>
+          <div class="sl-val" style="color:var(--accent-orange)" id="uVal">2.7</div>
+        </div>
+        <div class="rng-wrap">
+          <div class="rng-bg"></div>
+          <div class="rng-fill" id="uFill" style="background:linear-gradient(90deg,var(--accent-orange),#cc5500)"></div>
+          <input type="range" class="nr or" min="0" max="3" step="0.1" value="2.7" id="uSlider" oninput="updateScore()">
+        </div>
+        <div class="sm-row"><span class="sm">0</span><span class="sm">1</span><span class="sm">2</span><span class="sm">3</span></div>
+      </div>
+
+      <div class="unsc-row">
+        <input type="checkbox" class="unsc-cb" id="unscorable">
+        <label class="unsc-lbl" for="unscorable">Mark as Unscorable</label>
+      </div>
+    </div>
+
+    <!-- MAYO -->
+    <div class="mayo-card">
+      <div class="sc-head" style="margin-bottom:10px;">
+        <div>
+          <div class="slabel">Endoscopic Activity</div>
+          <div class="sctitle">Mayo Score</div>
+        </div>
+        <div class="tot-badge" style="border-color:rgba(255,124,69,0.3);">
+          <div class="tot-num" style="color:var(--accent-orange)" id="mTotal">3</div>
+          <div class="tot-lbl">MAYO</div>
+        </div>
+      </div>
+      <div class="sl-lr" style="margin-bottom:5px;">
+        <div class="sl-name">M · MAYO ENDOSCOPIC</div>
+        <div class="sl-val" style="color:var(--accent-orange)" id="mVal">3</div>
+      </div>
+      <div class="rng-wrap">
+        <div class="rng-bg"></div>
+        <div class="rng-fill" id="mFill" style="background:linear-gradient(90deg,var(--accent-orange),#cc5500);width:75%"></div>
+        <input type="range" class="nr or" min="0" max="4" step="1" value="3" id="mSlider" oninput="updateMayo()">
+      </div>
+      <div class="sm-row"><span class="sm">0</span><span class="sm">1</span><span class="sm">2</span><span class="sm">3</span><span class="sm">4</span></div>
+    </div>
+
+    <!-- ANALYSE BUTTON -->
+    <button class="analyse-btn" id="analyseBtn" onclick="runAnalysis()">
+      <span class="btn-icon">◈</span>
+      <span id="btnText">Analyse with NEXUS AI</span>
+    </button>
+
+    <!-- ML RESULTS (hidden until analysis) -->
+    <div class="result-panel" id="resultPanel">
+      <div class="rp-head">
+        <div class="rp-title">ML Disease Prediction</div>
+        <div class="ai-chip"><div class="ai-d"></div>NEXUS AI · v3.2</div>
+      </div>
+
+      <!-- Disease hero -->
+      <div class="disease-hero" id="diseaseHero">
+        <div class="dh-top">
+          <div class="dh-name" id="dName">—</div>
+          <div class="dh-conf" id="dConf">—%</div>
+        </div>
+        <div class="conf-bar-wrap"><div class="conf-bar-fill" id="confBar" style="width:0%"></div></div>
+        <div class="dh-meta" id="dMeta"></div>
+        <div class="dh-desc" id="dDesc">—</div>
+        <div class="dh-rec" id="dRec">—</div>
+      </div>
+
+      <!-- Top 3 -->
+      <div class="top3-section">
+        <div class="slabel" style="margin-bottom:8px;">Differential Diagnosis</div>
+        <div id="top3List"></div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="pipeline-section">
+        <div class="slabel" style="margin-bottom:8px;">Analysis Pipeline</div>
+        <div id="pipelineSteps"></div>
+      </div>
+    </div>
+
+    <!-- Video UCEIS Summary -->
+    <div class="summary-card">
+      <div class="slabel" style="margin-bottom:8px;">Video UCEIS Score Review</div>
+      <div class="sum-row"><div class="sum-k">Highest UCEIS Score</div><div class="sum-v" style="color:var(--accent-red)">6.6</div></div>
+      <div class="sum-row"><div class="sum-k">Sections Reviewed</div><div class="sum-v" id="sumReviewed" style="color:var(--accent-cyan)">6 / 26</div></div>
+      <div class="sum-row"><div class="sum-k">Mean UCEIS</div><div class="sum-v" style="color:var(--accent-amber)">4.2</div></div>
+      <div class="sum-row"><div class="sum-k">Disease Extent</div><div class="sum-v" style="color:var(--accent-orange);font-size:12px">Pan-colitis</div></div>
+      <div class="alert-box">⚠ &nbsp; 20 sections still pending review</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bbar">
+  <div class="bbar-l">
+    <div class="bi">SYSTEM <span>ONLINE</span></div>
+    <div class="bi">LATENCY <span id="latency">12ms</span></div>
+    <div class="bi">UPTIME <span>99.97%</span></div>
+    <div class="bi">ENCRYPTION <span>AES-256</span></div>
+    <div class="bi">HL7 FHIR <span>R4 COMPLIANT</span></div>
+  </div>
+  <div class="bbar-r">NEXUS ENDOSCOPY PLATFORM v3.2.1 · FDA CLASS II · CE MARKED · ISO 13485</div>
+</div>
+
+<script>
+const API = window.location.origin;
+let currentSection = 6;
+let sectionScores = {};
+let modelLoaded = false;
+
+// ── LOAD MODEL INFO ──
+async function loadModelInfo() {
+  try {
+    const r = await fetch(`${API}/api/model_info`);
+    const d = await r.json();
+    document.getElementById('mlStatus').textContent = 'ONLINE';
+    document.getElementById('mlStatus').parentElement.querySelector('span').style.color = 'var(--accent-green)';
+    document.getElementById('mlAcc').textContent = (d.accuracy * 100).toFixed(2) + '%';
+    document.getElementById('mlCV').textContent = (d.cv_mean * 100).toFixed(2) + '% ±' + (d.cv_std * 100).toFixed(2) + '%';
+    document.getElementById('mlClasses').textContent = d.n_classes;
+    document.getElementById('mlFeats').textContent = d.n_features;
+    document.getElementById('mlSamples').textContent = d.n_training_samples.toLocaleString();
+    modelLoaded = true;
+  } catch(e) {
+    document.getElementById('mlStatus').textContent = 'OFFLINE — Start app.py';
+    document.getElementById('mlStatus').parentElement.querySelector('span').style.color = 'var(--accent-red)';
+  }
+}
+loadModelInfo();
+
+// ── SCORE UPDATE ──
+function updateScore() {
+  const v = parseFloat(document.getElementById('vSlider').value);
+  const b = parseFloat(document.getElementById('bSlider').value);
+  const u = parseFloat(document.getElementById('uSlider').value);
+  document.getElementById('vVal').textContent = v.toFixed(1);
+  document.getElementById('bVal').textContent = b.toFixed(1);
+  document.getElementById('uVal').textContent = u.toFixed(1);
+  document.getElementById('vFill').style.width = (v/2*100)+'%';
+  document.getElementById('bFill').style.width = (b/3*100)+'%';
+  document.getElementById('uFill').style.width = (u/3*100)+'%';
+  const tot = (v+b+u).toFixed(1);
+  document.getElementById('uTotal').textContent = tot;
+  const tn = parseFloat(tot);
+  document.getElementById('uTotal').style.color =
+    tn>=6?'var(--accent-red)':tn>=4?'var(--accent-amber)':'var(--accent-green)';
+}
+function updateMayo() {
+  const m = parseInt(document.getElementById('mSlider').value);
+  document.getElementById('mVal').textContent = m;
+  document.getElementById('mTotal').textContent = m;
+  document.getElementById('mFill').style.width = (m/4*100)+'%';
+  document.getElementById('mTotal').style.color =
+    m>=3?'var(--accent-red)':m>=2?'var(--accent-amber)':'var(--accent-green)';
+}
+updateScore(); updateMayo();
+
+// ── RUN ML ANALYSIS ──
+async function runAnalysis() {
+  const btn = document.getElementById('analyseBtn');
+  const btnText = document.getElementById('btnText');
+
+  // Animate button
+  btn.classList.add('loading');
+  btnText.innerHTML = '<div class="spinner" style="display:inline-block"></div> &nbsp; Analysing…';
+
+  const v = parseFloat(document.getElementById('vSlider').value);
+  const b = parseFloat(document.getElementById('bSlider').value);
+  const u = parseFloat(document.getElementById('uSlider').value);
+  const m = parseInt(document.getElementById('mSlider').value);
+
+  try {
+    const resp = await fetch(`${API}/api/predict`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ uceis_v:v, uceis_b:b, uceis_u:u, mayo_score:m })
+    });
+    const data = await resp.json();
+
+    if (data.error) throw new Error(data.error);
+
+    displayResult(data);
+    btn.classList.remove('loading');
+    btnText.innerHTML = '◈ &nbsp; Re-Analyse';
+
+    // Save section score
+    sectionScores[currentSection] = data;
+    updateAIBadge(data.disease);
+
+  } catch(e) {
+    btn.classList.remove('loading');
+    btnText.innerHTML = '◈ &nbsp; Analyse with NEXUS AI';
+    alert('API Error: ' + e.message + '\n\nMake sure app.py is running:\n  python3 app.py');
+  }
+}
+
+function displayResult(data) {
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('visible');
+
+  // Disease name & confidence
+  document.getElementById('dName').textContent = data.disease;
+  document.getElementById('dName').style.color = data.color || 'var(--accent-cyan)';
+  const confPct = (data.confidence * 100).toFixed(1);
+  document.getElementById('dConf').textContent = confPct + '%';
+  document.getElementById('dConf').style.color = data.color || 'var(--accent-cyan)';
+
+  // Confidence bar
+  const cb = document.getElementById('confBar');
+  cb.style.background = data.color || 'var(--accent-cyan)';
+  cb.style.boxShadow = `0 0 12px ${data.color}66`;
+  setTimeout(() => { cb.style.width = confPct + '%'; }, 50);
+
+  // Meta badges
+  const sev = data.severity || 'unknown';
+  const urg = data.urgency || 'routine';
+  const sevColor = {none:'var(--accent-green)', mild:'var(--accent-amber)', moderate:'var(--accent-orange)',
+                    severe:'var(--accent-red)', high:'var(--accent-red)', low:'var(--accent-cyan)'}[sev] || '#888';
+  const urgColor = {routine:'var(--accent-green)', 'semi-urgent':'var(--accent-cyan)',
+                    outpatient:'var(--accent-amber)', urgent:'var(--accent-orange)', emergent:'var(--accent-red)'}[urg] || '#888';
+  document.getElementById('dMeta').innerHTML = `
+    <span class="dm-badge" style="background:${sevColor}22;border:1px solid ${sevColor}44;color:${sevColor}">
+      SEVERITY: ${sev.toUpperCase()}</span>
+    <span class="dm-badge" style="background:${urgColor}22;border:1px solid ${urgColor}44;color:${urgColor}">
+      ${urg.toUpperCase()}</span>
+    <span class="dm-badge" style="background:var(--accent-cyan-dim);border:1px solid var(--border-mid);color:var(--accent-cyan)">
+      ICD-10: ${data.icd10}</span>`;
+
+  document.getElementById('dDesc').textContent = data.description;
+  document.getElementById('dRec').innerHTML = '<strong>Clinical Recommendation:</strong> ' + data.recommendation;
+
+  // Top-3
+  const t3 = document.getElementById('top3List');
+  t3.innerHTML = '';
+  (data.top3 || []).forEach((item, i) => {
+    const pct = (item.confidence * 100).toFixed(1);
+    const col = item.info?.color || ['var(--accent-cyan)','var(--text-secondary)','var(--text-muted)'][i];
+    t3.innerHTML += `<div class="t3-row">
+      <div class="t3-rank">#${i+1}</div>
+      <div class="t3-name" style="color:${i===0?col:'var(--text-secondary)'}">${item.disease}</div>
+      <div class="t3-bar"><div class="t3-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="t3-conf" style="color:${col}">${pct}%</div>
+    </div>`;
+  });
+
+  // Pipeline steps
+  const ps = document.getElementById('pipelineSteps');
+  ps.innerHTML = '';
+  (data.pipeline_steps || []).forEach(step => {
+    ps.innerHTML += `<div class="ps-row">
+      <div class="ps-check">✓</div>
+      <div class="ps-step">${step.step}</div>
+      <div class="ps-val">${step.value}</div>
+    </div>`;
+  });
+}
+
+function updateAIBadge(disease) {
+  const el = document.getElementById('aiLabel');
+  el.textContent = 'NEXUS AI · ' + disease.split(' ').slice(0,2).join(' ').toUpperCase();
+  document.getElementById('aiDetect').textContent = 'ANALYSED';
+  document.getElementById('aiDetect').style.color = 'var(--accent-green)';
+}
+
+// ── SECTION NAVIGATION ──
+function changeSection(delta) {
+  currentSection = Math.max(1, Math.min(26, currentSection + delta));
+  document.getElementById('curSec').textContent = currentSection;
+  document.getElementById('secCounter').innerHTML = `${currentSection} <span>/ 26</span>`;
+  document.getElementById('sumReviewed').textContent = currentSection + ' / 26';
+  document.getElementById('alertBox') && (document.getElementById('alertBox').textContent =
+    `⚠  ${26 - currentSection} sections still pending review`);
+  // Randomize scores for demo
+  const rv = (Math.random()*2).toFixed(1);
+  const rb = (Math.random()*3).toFixed(1);
+  const ru = (Math.random()*3).toFixed(1);
+  document.getElementById('vSlider').value = rv;
+  document.getElementById('bSlider').value = rb;
+  document.getElementById('uSlider').value = ru;
+  updateScore();
+  // Hide previous result
+  document.getElementById('resultPanel').classList.remove('visible');
+  document.getElementById('btnText').textContent = 'Analyse with NEXUS AI';
+}
+
+function saveAndNext() {
+  if (currentSection < 26) changeSection(1);
+}
+
+// ── SPEED BUTTONS ──
+document.querySelectorAll('.sbtn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+// ── NAV TABS ──
+document.querySelectorAll('.nav-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+// ── VIDEO CANVAS ──
+const cv = document.getElementById('endoCanvas');
+const cx = cv.getContext('2d');
+let frame = 0, playing = true;
+
+function resizeCv() {
+  cv.width = cv.offsetWidth * devicePixelRatio;
+  cv.height = cv.offsetHeight * devicePixelRatio;
+  cx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeCv();
+window.addEventListener('resize', resizeCv);
+
+function drawEndo() {
+  const W = cv.offsetWidth, H = cv.offsetHeight;
+  cx.clearRect(0,0,W,H);
+  cx.fillStyle='#000'; cx.fillRect(0,0,W,H);
+  const ox=W*0.44, oy=H*0.5, r=Math.min(W,H)*0.43;
+  cx.save();
+  cx.beginPath(); cx.arc(ox,oy,r,0,Math.PI*2); cx.clip();
+  const g=cx.createRadialGradient(ox,oy-r*0.1,r*0.04,ox,oy,r);
+  g.addColorStop(0,'#c0392b'); g.addColorStop(0.4,'#a93226'); g.addColorStop(0.7,'#922b21'); g.addColorStop(1,'#641e16');
+  cx.fillStyle=g; cx.fillRect(0,0,W,H);
+  const t=frame*0.008;
+  [{x:ox-r*.2,y:oy-r*.15,rx:r*.35,ry:r*.28,c:'rgba(210,80,60,0.35)'},
+   {x:ox+r*.15,y:oy+r*.1,rx:r*.3,ry:r*.22,c:'rgba(180,50,40,0.3)'},
+   {x:ox-r*.05,y:oy+r*.25,rx:r*.25,ry:r*.2,c:'rgba(230,100,70,0.25)'}].forEach((b,i)=>{
+    cx.beginPath(); cx.ellipse(b.x+Math.sin(t+i)*4,b.y+Math.cos(t*.7+i)*3,b.rx,b.ry,t*.1+i*.5,0,Math.PI*2);
+    cx.fillStyle=b.c; cx.fill();
+  });
+  cx.strokeStyle='rgba(100,20,20,0.45)'; cx.lineWidth=1.5;
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2+t*.05;
+    cx.beginPath(); cx.moveTo(ox+Math.cos(a)*r*.05,oy+Math.sin(a)*r*.05);
+    cx.quadraticCurveTo(ox+Math.cos(a+.5)*r*.25,oy+Math.sin(a+.5)*r*.25,ox+Math.cos(a+1)*r*.5,oy+Math.sin(a+1)*r*.5);
+    cx.stroke();
+  }
+  [{x:ox+r*.25,y:oy-r*.3,s:r*.08},{x:ox-r*.1,y:oy+r*.35,s:r*.06},{x:ox+r*.35,y:oy+r*.15,s:r*.05}].forEach(u=>{
+    const ug=cx.createRadialGradient(u.x,u.y,0,u.x,u.y,u.s);
+    ug.addColorStop(0,'rgba(255,240,180,0.8)'); ug.addColorStop(.5,'rgba(220,180,100,0.5)'); ug.addColorStop(1,'rgba(180,100,80,0)');
+    cx.beginPath(); cx.arc(u.x,u.y,u.s,0,Math.PI*2); cx.fillStyle=ug; cx.fill();
+  });
+  const lg=cx.createRadialGradient(ox-r*.05,oy+r*.02,0,ox-r*.05,oy+r*.02,r*.28);
+  lg.addColorStop(0,'#000'); lg.addColorStop(.6,'rgba(30,10,10,0.9)'); lg.addColorStop(1,'rgba(80,20,20,0)');
+  cx.beginPath(); cx.ellipse(ox-r*.05,oy+r*.02,r*.22,r*.25,-.1,0,Math.PI*2); cx.fillStyle=lg; cx.fill();
+  if(Math.floor(frame/40)%2===0){
+    cx.strokeStyle='rgba(0,212,255,0.75)'; cx.lineWidth=1.5; cx.setLineDash([4,3]);
+    cx.strokeRect(ox+r*.15,oy-r*.42,r*.25,r*.2); cx.setLineDash([]);
+    cx.fillStyle='rgba(0,212,255,0.12)'; cx.fillRect(ox+r*.15,oy-r*.42,r*.25,r*.2);
+    cx.fillStyle='#00d4ff'; cx.font=`bold ${r*.044}px 'Space Mono',monospace`;
+    cx.fillText('ULCER',ox+r*.17,oy-r*.25);
+  }
+  cx.restore();
+  const vg=cx.createRadialGradient(ox,oy,r*.85,ox,oy,r*1.1);
+  vg.addColorStop(0,'transparent'); vg.addColorStop(1,'rgba(0,0,0,0.95)');
+  cx.beginPath(); cx.arc(ox,oy,r*1.1,0,Math.PI*2); cx.fillStyle=vg; cx.fill();
+  cx.fillStyle='#000'; cx.beginPath(); cx.rect(0,0,W,H); cx.arc(ox,oy,r,0,Math.PI*2,true); cx.fill('evenodd');
+  if(playing) frame++;
+  requestAnimationFrame(drawEndo);
+}
+setTimeout(drawEndo,100);
+
+document.getElementById('playBtn').addEventListener('click',function(){
+  playing=!playing; this.textContent=playing?'⏸':'▶';
+});
+
+let secs=572; const totalS=624;
+setInterval(()=>{
+  if(!playing)return;
+  secs=Math.min(secs+1,totalS);
+  const m=Math.floor(secs/60),s=secs%60,tm=Math.floor(totalS/60),ts=totalS%60;
+  document.getElementById('tDisp').innerHTML=`${m}:${String(s).padStart(2,'0')} <span style="color:var(--text-muted)">/</span> ${tm}:${String(ts).padStart(2,'0')}`;
+  document.getElementById('frameNum').textContent=`${929+(secs-572)}/964`;
+  const pct=(secs/totalS)*100;
+  document.getElementById('phTrack').style.width=pct+'%';
+  document.getElementById('phThumb').style.right=(100-pct)+'%';
+  setInterval(()=>{document.getElementById('latency').textContent=Math.round(10+Math.random()*8)+'ms';},2500);
+},1000);
+
+// ── SECTION BAR ──
+const segData=[{w:4,c:'#1a3a5c'},{w:3,c:'#1a3a5c'},{w:5,c:'#2d5a2a'},{w:4,c:'#2d7a4a'},
+  {w:3,c:'#b8860b'},{w:5,c:'#cc6600'},{w:4,c:'#cc3300'},{w:3,c:'#8b0000'},
+  {w:4,c:'#cc3300'},{w:3,c:'#8b0000'},{w:4,c:'#cc3300'},{w:3,c:'#b8860b'},
+  {w:4,c:'#cc6600'},{w:5,c:'#8b0000'},{w:3,c:'#cc3300'},{w:4,c:'#b8860b'},
+  {w:3,c:'#cc6600'},{w:5,c:'#8b0000'},{w:4,c:'#cc3300'},{w:3,c:'#b8860b'},
+  {w:4,c:'#555'},{w:3,c:'#444'},{w:5,c:'#333'},{w:4,c:'#2a2a2a'},{w:3,c:'#2a2a2a'},{w:2,c:'#2a2a2a'}];
+const bar=document.getElementById('sectionBar');
+const tot=segData.reduce((a,b)=>a+b.w,0);
+segData.forEach((s,i)=>{
+  const seg=document.createElement('div'); seg.className='sbseg';
+  seg.style.width=(s.w/tot*100)+'%'; seg.style.background=s.c;
+  if(i===5) seg.classList.add('current');
+  seg.addEventListener('click',()=>{
+    currentSection=i+1; changeSection(0);
+    document.querySelectorAll('.sbseg').forEach(x=>x.classList.remove('current'));
+    seg.classList.add('current');
+  });
+  bar.appendChild(seg);
+});
+
+// ── SCORE GRAPH ──
+function drawGraph(){
+  const sc=document.getElementById('scoreGraph');
+  sc.width=sc.offsetWidth*devicePixelRatio; sc.height=sc.offsetHeight*devicePixelRatio;
+  const ctx=sc.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const W=sc.offsetWidth, H=sc.offsetHeight;
+  const scores=[0.5,1,1.2,0.8,2.1,2.8,3.5,5.1,6.1,6.6,5.9,5.2,4.8,6.0,5.7,4.9,5.5,6.2,5.8,4.5,0,0,0,0,0,0];
+  const mx=8;
+  ctx.strokeStyle='rgba(0,212,255,0.05)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=(i/4)*H; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();}
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,'rgba(255,71,87,0.25)'); grd.addColorStop(.5,'rgba(255,184,48,0.1)'); grd.addColorStop(1,'rgba(0,212,255,0.03)');
+  ctx.beginPath();
+  scores.forEach((s,i)=>{const x=(i/(scores.length-1))*W,y=H-(s/mx)*H*.88-H*.04; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fillStyle=grd; ctx.fill();
+  ctx.strokeStyle='rgba(0,212,255,0.65)'; ctx.lineWidth=1.5; ctx.beginPath();
+  scores.forEach((s,i)=>{const x=(i/(scores.length-1))*W,y=H-(s/mx)*H*.88-H*.04; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+  const ci=currentSection-1, cx2=(ci/(scores.length-1))*W;
+  ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(cx2,0); ctx.lineTo(cx2,H); ctx.stroke(); ctx.setLineDash([]);
+  const cy2=H-(scores[ci]/mx)*H*.88-H*.04;
+  ctx.beginPath(); ctx.arc(cx2,cy2,4,0,Math.PI*2); ctx.fillStyle='#00d4ff'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+}
+setTimeout(drawGraph,120);
+window.addEventListener('resize',drawGraph);
+</script>
+</body>
+</html>
