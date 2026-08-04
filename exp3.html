@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CRM Website</title>
+<style>
+body{
+font-family:Arial;
+background:#f2f2f2;
+}
+.container{
+width:400px;
+margin:auto;
+margin-top:50px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+button{
+width:100%;
+padding:10px;
+background:blue;
+color:white;
+border:none;
+font-size:16px;
+}
+button:hover{
+background:green;
+}
+h2{
+text-align:center;
+}
+#msg{
+text-align:center;
+color:green;
+font-weight:bold;
+}
+</style>
+<script>
+function validateForm(){
+var name=document.getElementById("name").value;
+var email=document.getElementById("email").value;
+var mobile=document.getElementById("mobile").value;
+if(name==""){
+alert("Enter Name");
+return false;
+}
+if(email==""){
+alert("Enter Email");
+return false;
+}
+if(mobile.length!=10){
+alert("Enter Valid Mobile Number");
+return false;
+}
+document.getElementById("msg").innerHTML="Form Submitted Successfully";
+return false;
+}
+</script>
+</head>
+<body>
+<div class="container">
+<h2>CRM Customer Form</h2>
+<form onsubmit="return validateForm()">
+<input type="text" id="name" placeholder="Enter Name">
+<input type="email" id="email" placeholder="Enter Email">
+<input type="text" id="mobile" placeholder="Enter Mobile Number">
+<button type="submit">Submit</button>
+</form>
+<p id="msg"></p>
+</div>
+</body>
+</html>
